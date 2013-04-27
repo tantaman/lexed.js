@@ -88,3 +88,38 @@ test("Returns EOF after matching everything", function() {
 	ok(lastToken == Lexed.EOF);
 	ok(i == str.length, "Matched appropriate number of times");
 });
+
+test("Allows state transitions!", function() {
+	var rules = {
+			initial: {
+				'<\/[^>]+>': Lexed.IGNORE,
+				'<[^>]+>': Lexed.IGNORE,
+				'[^<>]+': function(text) {
+					return text;
+				},
+				'<!--': function(text, lexed) {
+					lexed.state('comment');
+					return Lexed.IGNORE;
+				}
+			},
+			comment: {
+				'[^-]+': Lexed.IGNORE,
+				'-->': function(text, lexed) {
+					lexed.state('initial');
+					return Lexed.IGNORE;
+				},
+				'-': Lexed.IGNORE
+			}
+		};
+
+	var str = '<div class="container"><h1>Welcome</h1><!-- some comment -->More text</div>';
+	var l = new Lexed(str, null, rules);
+
+	var token;
+	var allText = '';
+	while((token = l.lex()) != Lexed.EOF) {
+		allText += token;
+	}
+	
+	ok("WelcomeMore text" == allText);
+});

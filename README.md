@@ -16,4 +16,4 @@ while ((token = l.lex()) != Lexed.EOF) {
 }
 ```
 
-Take a look at the [tests](https://github.com/tantaman/lexed.js/blob/master/src/test) for more usage examples.
+Take a look at the [tests](https://github.com/tantaman/lexed.js/blob/master/src/test) and [examples](https://github.com/tantaman/lexed.js/blob/master/examples) folders for more usage examples.

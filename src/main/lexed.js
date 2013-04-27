@@ -1,16 +1,10 @@
 ;(function(glob, undefined) {
 	'use strict'
 
-	function Lexed(textStream, ruleMap) {
-		if (typeof textStream === 'string') {
-			textStream = new Lexed.StringStream(textStream);
-		}
-
-		this._stream = textStream;
-		this._currString = '';
+	function buildRules(ruleMap) {
 		var ruleKeys = Object.keys(ruleMap);
 
-		this._rules = [];
+		var rules = [];
 		ruleKeys.forEach(function(ruleKey) {
 			if (ruleKey[0] == '^') {
 				throw "rules with ^ as their first character are currently unsupported."
@@ -20,12 +14,57 @@
 					action: ruleMap[ruleKey]
 				};
 
-				this._rules.push(rule);
+				rules.push(rule);
 			}
-		}, this);
+		});
+
+		return rules;
 	}
 
-	Lexed.EOF = {};
+	function normalize(ruleMap, statedRuleMap) {
+		ruleMap || (ruleMap = {});
+		statedRuleMap || (statedRuleMap = {});
+
+		var initial = statedRuleMap.initial;
+		if (initial) {
+			for (var key in ruleMap) {
+				initial[key] = ruleMap[key];
+			}
+		} else {
+			statedRuleMap.initial = ruleMap;
+		}
+
+		return statedRuleMap;
+	}
+
+	function Lexed(textStream, ruleMap, statedRuleMap) {
+		if (typeof textStream === 'string') {
+			textStream = new Lexed.StringStream(textStream);
+		}
+
+		this._stream = textStream;
+		this._currString = '';
+		this._state = 'initial';
+
+		ruleMap = normalize(ruleMap, statedRuleMap);
+		
+		this._rules = {};
+
+		for (var state in ruleMap) {
+			this._rules[state] = buildRules(ruleMap[state]);
+		}
+	}
+
+	Lexed.EOF = {
+		toString: function() {
+			return "eof"
+		}
+	};
+	Lexed.IGNORE = {
+		toString: function() {
+			return "ignored";
+		}
+	};
 	Lexed.NO_MATCH = {msg: "NO SUITABLE CONTINUOUS MATCH"};
 	Lexed.StringStream = function StringStream(string) {
 		this._string = string;
@@ -51,9 +90,10 @@
 			// Doing this iteratively even though it is
 			// a bit uglier than the recursive solution.
 			var index;
+			var rules = this._rules[this._state];
 			while (!match) {
-				for (var i = 0; i < this._rules.length; ++i) {
-					var rule = this._rules[i];
+				for (var i = 0; i < rules.length; ++i) {
+					var rule = rules[i];
 					var tempMatch = rule.regex.exec(this._currString);
 					if (tempMatch && (!match || tempMatch[0].length > match[0].length)) {
 						match = tempMatch;
@@ -72,9 +112,15 @@
 
 			this._currString = this._currString.substring(match[0].length);
 
-			var rule = this._rules[index];
+			var rule = rules[index];
 			if (typeof rule.action === 'function') {
-				return rule.action(match[0]);
+				var result = rule.action(match[0], this);
+				if (result === Lexed.IGNORE)
+					return this.lex();
+				return result;
+			} else if (rule.action === Lexed.IGNORE) {
+				var t;
+				return this.lex();
 			} else {
 				return rule.action;
 			}
@@ -86,14 +132,14 @@
 			} else {
 				return '';
 			}
+		},
+
+		state: function(newState) {
+			if (!newState)
+				return this._state;
+			this._state = newState;
 		}
 	};
 
 	glob.Lexed = Lexed;
-	/*
-	format:
-	{
-		"rule": terminal -or- function...
-	}
-	*/
 }(this));

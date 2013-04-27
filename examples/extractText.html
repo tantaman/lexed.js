@@ -1,0 +1,73 @@
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+</head>
+<body>
+	<div>
+		<h1>Hi There!</h1>
+		<h4>I grab all the text AND code on the page and dump it to this little text box!</h4>
+	</div>
+	<textarea id="txt" rows="50" cols="150">
+	</textarea>
+	<script type="text/javascript" src="../src/main/lexed.js"></script>
+	<script type="text/javascript">
+		var rules = {
+			initial: {
+				'<script[^<]*>': function(text, lexed) {
+					lexed.state('code');
+					return Lexed.IGNORE;
+				},
+
+				'<\/[^>]+>': Lexed.IGNORE,
+				'<[^>]+>': Lexed.IGNORE,
+				'[^<>]+': function(text) {
+					return text;
+				},
+				'<!--': function(text, lexed) {
+					lexed.state('comment');
+					return Lexed.IGNORE;
+				}
+			},
+			comment: {
+				'[^-]+': Lexed.IGNORE,
+				'-->': function(text, lexed) {
+					lexed.state('initial');
+					return Lexed.IGNORE;
+				},
+				'-': Lexed.IGNORE
+			},
+			code: {
+				'[^<]+': function(text) {
+					return text;
+				},
+				'<': '<'
+			}
+		};
+		// because doing an actual < /script > tag string will cause the browser
+		// to stop evaluating the script!  seriously!
+		rules.code["<" + "/script" + ">"] = function(text, lexed) {
+			lexed.state('initial');
+			return Lexed.IGNORE;
+		};
+
+		window.onload = function() {
+			var str = document.body.innerHTML;
+			var l = new Lexed(str, null, rules);
+
+			var token;
+			var allText = '';
+
+			try {
+				while((token = l.lex()) != Lexed.EOF) {
+					allText += token;
+				}
+			} catch (e) {
+				console.log(e);
+			}
+
+			document.getElementById('txt').value = allText;
+		};
+	</script>
+	And some stuff at the end just to make sure we didn't consume too much.
+</body>
+</html>
