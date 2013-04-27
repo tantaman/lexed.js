@@ -16,4 +16,6 @@ while ((token = l.lex()) != Lexed.EOF) {
 }
 ```
 
+It also supports state transitions.
+
 Take a look at the [tests](https://github.com/tantaman/lexed.js/blob/master/src/test) and [examples](https://github.com/tantaman/lexed.js/blob/master/examples) folders for more usage examples.
