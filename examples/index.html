@@ -6,9 +6,9 @@
 	<script type="text/javascript" src="../src/main/lexed.js"></script>
 	<script type="text/javascript">
 		var rules = {
-			'<\/[^>]+>': 'close_tag',
-			'<[^>]+>': function(match) { return {type: 'open_tag', text: match} },
-			'[^<>]+': function(match) { return match; }
+			'<\/[^>]+>': Lexed.IGNORE, // ignore close tags
+			'<[^>]+>': Lexed.IGNORE, // ignore open tags
+			'[^<>]+': function(text) { return text; } // return matched text content
 		};
 		var l = new Lexed('<div class="intro"><b>Hello!</b></div>', rules);
 
