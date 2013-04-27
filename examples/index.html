@@ -1,0 +1,21 @@
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+</head>
+<body>
+	<script type="text/javascript" src="../src/main/lexed.js"></script>
+	<script type="text/javascript">
+		var rules = {
+			'<\/[^>]+>': 'close_tag',
+			'<[^>]+>': function(match) { return {type: 'open_tag', text: match} },
+			'[^<>]+': function(match) { return match; }
+		};
+		var l = new Lexed('<div class="intro"><b>Hello!</b></div>', rules);
+
+		var token;
+		while ((token = l.lex()) != Lexed.EOF) {
+			console.log(token);
+		}
+	</script>
+</body>
+</html>
