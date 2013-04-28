@@ -10,7 +10,7 @@
 				throw "rules with ^ as their first character are currently unsupported."
 			} else {
 				var rule = {
-					regex: new RegExp('^' + ruleKey),
+					regex: new RegExp('^(' + ruleKey + ')'),
 					action: ruleMap[ruleKey]
 				};
 
