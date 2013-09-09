@@ -4,7 +4,7 @@
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 	<style id="mainPageStyles">
 		small:before {
-			content: " --- ";
+			content: " not ";
 		}
 
 		h1 {
@@ -16,6 +16,10 @@
 		small {
 			font-weight: 24px;
 			color: #CCC;
+		}
+
+		p {
+			width: 640px;
 		}
 	</style>
 	<style id="userStyles">
@@ -49,7 +53,11 @@
 	</style>
 </head>
 <body>
-	<h1>Main page heading<small>subheading</small></h1>
+	<p><a href="http://strut.io">Strut.io</a> allows users to insert custom stylesheets into their presentations.  Unfortunately the HTML5 scoped attribute is not widely supported.  Instead of making users add a qualifying class to their custom CSS, Strut prepends a class to the user's selectors once they save their CSS.
+		<br/><br/>
+	Here is an example of using Lexed to "scope" CSS rules to a given class.
+	</p>
+	<h1>Main page heading<small>currently impacted by the user's stylesheet</small></h1>
 	<div class="user-gen-scoped">
 		<h1>User generated heading<small>subheading</small></h1>
 	</div>

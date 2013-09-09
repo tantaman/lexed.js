@@ -21,4 +21,5 @@ It also supports state transitions.
 Take a look at the [tests](https://github.com/tantaman/lexed.js/blob/master/src/test) and [examples](https://github.com/tantaman/lexed.js/blob/master/examples) folders for more usage examples.
 
 State transitions example: http://tantaman.github.io/lexed.js/examples/stateTransitions.html
+
 Scoping existing CSS: http://tantaman.github.io/lexed.js/examples/scopeCss.html
