@@ -33,7 +33,7 @@
 
 		small:before {
 
-			
+
 			content: "-"
 		}
 
@@ -62,6 +62,11 @@
 		var sheetElem = document.getElementById('userStyles');
 		var css = sheetElem.innerHTML;
 		
+		/**
+		A cleaner approach would be to make a lexer
+		that just extracts tokens and then do the rest of the work
+		with a recursive descent or some other parser.
+		*/
 		var rules = {
 			initial: {
 				'/\\*': function(text, lexed) {
