@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<style id="mainPageStyles">
+		small:before {
+			content: " --- ";
+		}
+
+		h1 {
+			font-family: helvetica;
+			font-size: 36px;
+			font-weight: bold;
+		}
+
+		small {
+			font-weight: 24px;
+			color: #CCC;
+		}
+	</style>
+	<style id="userStyles">
+	/*
+	Commentary
+
+	dfg 
+	*/
+		small /**/ {
+			font-family: serif;
+			font-size: 12px;
+			font-weight: normal;
+			color: #AAA;
+		}
+
+		small:before {
+
+			
+			content: "-"
+		}
+
+		h1 {
+			font-family: arial;
+			font-size: 48px;
+			font-weight: bold;
+		}
+
+		span > i {
+			font-style: italic;
+		}
+	</style>
+</head>
+<body>
+	<h1>Main page heading<small>subheading</small></h1>
+	<div class="user-gen-scoped">
+		<h1>User generated heading<small>subheading</small></h1>
+	</div>
+	<div>
+		<button id="scopeBtn">Scope CSS</button>
+		<button id="unscopeBtn">Unscope CSS</button>
+	</div>
+	<script type="text/javascript" src="../src/main/lexed.js"></script>
+	<script>
+		var sheetElem = document.getElementById('userStyles');
+		var css = sheetElem.innerHTML;
+		
+		var rules = {
+			initial: {
+				'/\\*': function(text, lexed) {
+					lexed.state('comment');
+					return text;
+				},
+
+				'\\s+': function(text, lexed) {
+					return text;
+				},
+
+				'[^{\\s\\/]+': function(text, lexed) {
+					lexed.state('ruleName');
+					return {text: text};
+				}
+			},
+
+			ruleName: {
+				'{': function(text, lexed) {
+					lexed.state('ruleDefinition');
+					return text;
+				},
+
+				'[^{]+': function(text, lexed) {
+					return text;
+				}
+			},
+
+			comment: {
+				'\\*/': function(text, lexed) {
+					lexed.state('initial');
+					return text;
+				},
+				'\\*': function(text) {return text;},
+				'[^*]': function(text) {return text;}
+			},
+
+			ruleDefinition: {
+				'/\\*': function(text, lexed) {
+					lexed.state('comment');
+					return text;
+				},
+
+				'[^}]': function(text) {
+					return text;
+				},
+
+				'}': function(text, lexed) {
+					lexed.state('initial');
+					return text;
+				}
+			}
+		};
+
+		
+
+		document.getElementById('scopeBtn').addEventListener('click', function() {
+			var allText = '';
+			var l = new Lexed(css, null, rules);
+			while((token = l.lex()) != Lexed.EOF) {
+				if (token.text)
+					allText += ".user-gen-scoped " + token.text;
+				else
+					allText += token;
+			}
+
+			sheetElem.innerHTML = allText;
+			console.log(allText);
+		});
+
+		document.getElementById('unscopeBtn').addEventListener('click', function() {
+			var allText = '';
+			var l = new Lexed(css, null, rules);
+			while((token = l.lex()) != Lexed.EOF) {
+				if (token.text) {
+					allText += token.text.replace(".user-gen-scoped", "");
+				} else
+					allText += token;
+			}
+
+			sheetElem.innerHTML = allText;
+			console.log(allText);
+		});
+	</script>
+</body>
+</html>
